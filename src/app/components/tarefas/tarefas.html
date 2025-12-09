@@ -42,6 +42,10 @@
           <i class="bi bi-circle me-2"></i> Abertas
         </button>
       </div>
+
+      <button (click)="mudarAba('categorias')" [class.active]="aba==='categorias'">
+        <i class="bi bi-tag me-2"></i> Categorias
+      </button>
     </div>
 
     <div class="sidebar-footer mt-auto">
@@ -118,11 +122,12 @@
       <div class="card-tarefas text-center">
         <h4>Perfil</h4>
         <p *ngIf="usuarioLogado"><b>{{usuarioLogado.nome}} {{usuarioLogado.sobrenome}}</b></p>
-        <p>Email: {{usuario.email}}</p>
-        <p>Idade: {{usuario.idade}}</p>
+        <p>Email: {{usuarioLogado?.email}}</p>
+        <p>Idade: {{usuarioLogado?.idade}}</p>
         <hr>
         <button class="btn btn-secondary w-100 mb-2" (click)="alternarTema()">Tema:
           {{temaClaro?'Claro':'Escuro'}}</button>
+        <button class="btn btn-info w-100 mb-2" (click)="mudarAba('categorias')">Gerenciar Categorias</button>
         <button class="btn btn-danger w-100" (click)="sair()">Sair</button>
       </div>
     </section>
@@ -144,6 +149,25 @@
         <input type="date" min="{{hoje}}" class="form-control mb-2" name="data" [(ngModel)]="novaTarefa.data" required>
         <div *ngIf="form.submitted && !novaTarefa.data" class="text-danger small">Data obrigatória</div>
 
+        <div class="row">
+          <div class="col-md-6">
+            <label>Prioridade</label>
+            <select class="form-select mb-2" name="prioridade" [(ngModel)]="novaTarefa.prioridade">
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label>Categoria</label>
+            <select class="form-select mb-2" name="categoria" [(ngModel)]="novaTarefa.categoria">
+              <option value="">Sem categoria</option>
+              <option *ngFor="let cat of categorias" [value]="cat.nome">{{cat.nome}}</option>
+            </select>
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-primary w-100 mt-2">
           {{modoEdicao ? "Salvar Alterações" : "Cadastrar"}}
         </button>
@@ -160,12 +184,55 @@
 
     </section>
 
-    <section *ngIf="aba!=='login' && aba!=='cadastro' && aba!=='config' && aba!=='cadastrar'" class="listagem-container">
+    <section *ngIf="aba==='categorias'" class="centro">
+      <div class="card-tarefas">
+        <h4 class="text-center mb-3">Gerenciar Categorias</h4>
+
+        <div class="mb-3">
+          <label>Nome da Categoria *</label>
+          <input class="form-control mb-2" placeholder="Ex: Trabalho, Pessoal..." [(ngModel)]="novaCategoria.nome" name="nomeCat">
+          <div *ngIf="erroNomeCategoria" class="text-danger small">Nome obrigatório</div>
+
+          <label>Cor</label>
+          <input type="color" class="form-control form-control-color mb-2" [(ngModel)]="novaCategoria.cor" name="corCat">
+
+          <button class="btn btn-primary w-100" (click)="adicionarCategoria()">Adicionar Categoria</button>
+        </div>
+
+        <hr>
+
+        <div *ngIf="categorias.length === 0" class="text-center text-muted py-3">
+          Nenhuma categoria cadastrada
+        </div>
+
+        <div *ngFor="let categoria of categorias" class="categoria-item mb-2 p-3 rounded d-flex justify-content-between align-items-center"
+          [style.backgroundColor]="categoria.cor + '20'" [style.borderLeft]="'4px solid ' + categoria.cor">
+          <div class="d-flex align-items-center gap-2">
+            <div class="categoria-cor" [style.backgroundColor]="categoria.cor"></div>
+            <span class="fw-bold">{{categoria.nome}}</span>
+          </div>
+          <button class="btn btn-danger btn-sm" (click)="excluirCategoria(categoria)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+
+        <div *ngIf="categoriaSendoUsada" class="alert alert-warning mt-3" role="alert">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          {{erroExclusaoCategoria}}
+        </div>
+
+        <button class="btn btn-secondary w-100 mt-3" (click)="mudarAba('config')">Voltar</button>
+      </div>
+    </section>
+
+    <section *ngIf="aba!=='login' && aba!=='cadastro' && aba!=='config' && aba!=='cadastrar' && aba!=='categorias'" class="listagem-container">
       <table class="table table-hover tabela-responsiva" [class.table-dark]="!temaClaro">
         <thead>
           <tr>
             <th>Título</th>
             <th>Descrição</th>
+            <th>Prioridade</th>
+            <th>Categoria</th>
             <th>Data</th>
             <th>Status</th>
             <th class="text-end">Ações</th>
@@ -177,6 +244,23 @@
             
             <td data-label="Descrição" [class.ok]="tarefa.concluida" class="text-wrap-mobile">
               {{tarefa.descricao || '-'}}
+            </td>
+
+            <td data-label="Prioridade">
+              <span class="badge" [ngClass]="{
+                'bg-success': tarefa.prioridade === 'baixa',
+                'bg-warning': tarefa.prioridade === 'media',
+                'bg-danger': tarefa.prioridade === 'alta'
+              }">
+                {{tarefa.prioridade | titlecase}}
+              </span>
+            </td>
+
+            <td data-label="Categoria">
+              <span *ngIf="tarefa.categoria" class="badge" [style.backgroundColor]="obterCorCategoria(tarefa.categoria)">
+                {{tarefa.categoria}}
+              </span>
+              <span *ngIf="!tarefa.categoria" class="text-muted">-</span>
             </td>
             
             <td data-label="Data">{{tarefa.data | date:'dd/MM/yyyy'}}</td>
@@ -202,7 +286,7 @@
           </tr>
 
           <tr *ngIf="tarefasFiltradas().length===0">
-            <td colspan="5" class="text-center py-4 text-muted">
+            <td colspan="7" class="text-center py-4 text-muted">
                 <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                 Nenhuma tarefa encontrada
             </td>
@@ -227,6 +311,16 @@
         <div class="d-flex gap-2">
           <button class="btn btn-danger w-50" (click)="excluirDefinitivo()">Excluir</button>
           <button class="btn btn-secondary w-50" (click)="cancelarExclusao()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="categoriaSelecionadaParaExcluir && !categoriaSendoUsada" class="modal-backdrop">
+      <div class="modal-card">
+        <p>Excluir categoria <b>{{categoriaSelecionadaParaExcluir.nome}}</b>?</p>
+        <div class="d-flex gap-2">
+          <button class="btn btn-danger w-50" (click)="confirmarExclusaoCategoria()">Excluir</button>
+          <button class="btn btn-secondary w-50" (click)="cancelarExclusaoCategoria()">Cancelar</button>
         </div>
       </div>
     </div>

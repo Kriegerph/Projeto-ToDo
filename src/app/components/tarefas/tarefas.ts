@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -15,17 +15,26 @@ export class TarefasComponent {
   // Tipos mais explícitos
   interfaceTarefa = true;
 
-  novaTarefa: { titulo: string; descricao: string; data: string } = { titulo: '', descricao: '', data: '' };
-  tarefas: { id: string; titulo: string; descricao: string; data: string; concluida: boolean }[] = [];
+  // ----- TAREFAS -----
+  novaTarefa: { titulo: string; descricao: string; data: string; prioridade: 'baixa' | 'media' | 'alta'; categoria: string } = { titulo: '', descricao: '', data: '', prioridade: 'media', categoria: '' };
+  tarefas: { id: string; titulo: string; descricao: string; data: string; prioridade: 'baixa' | 'media' | 'alta'; categoria: string; concluida: boolean }[] = [];
 
-  tarefaSelecionadaParaExcluir: { id: string; titulo: string; descricao: string; data: string; concluida: boolean } | null = null;
-  tarefaEditando: { id: string; titulo: string; descricao: string; data: string; concluida: boolean } | null = null;
+  tarefaSelecionadaParaExcluir: { id: string; titulo: string; descricao: string; data: string; prioridade: 'baixa' | 'media' | 'alta'; categoria: string; concluida: boolean } | null = null;
+  tarefaEditando: { id: string; titulo: string; descricao: string; data: string; prioridade: 'baixa' | 'media' | 'alta'; categoria: string; concluida: boolean } | null = null;
   modoEdicao = false;
 
   formEdicaoAtual: NgForm | null = null;
-  tarefaConfirmacaoEdicao: { id?: string; titulo: string; descricao: string; data: string; concluida?: boolean } | null = null;
+  tarefaConfirmacaoEdicao: { id?: string; titulo: string; descricao: string; data: string; prioridade?: 'baixa' | 'media' | 'alta'; categoria?: string; concluida?: boolean } | null = null;
   alertTarefaSalva = false;
   private alertTimeout: any = null;
+
+  // ----- CATEGORIAS -----
+  categorias: { id: string; nome: string; cor: string }[] = [];
+  novaCategoria: { nome: string; cor: string } = { nome: '', cor: '#3b82f6' };
+  erroNomeCategoria = false;
+  categoriaSelecionadaParaExcluir: { id: string; nome: string; cor: string } | null = null;
+  erroExclusaoCategoria = '';
+  categoriaSendoUsada = false;
 
   // ----- USUÁRIOS -----
   usuarios: { nome: string; sobrenome: string; idade: string; email: string; senha: string }[] = [];
@@ -52,11 +61,12 @@ export class TarefasComponent {
   // ----- RESPONSIVIDADE -----
   sidebarAberta = false; // Controle do menu mobile
 
-  aba: 'login' | 'cadastro' | 'config' | 'cadastrar' | 'todas' | 'concluidas' | 'abertas' = 'login';
+  aba: 'login' | 'cadastro' | 'config' | 'cadastrar' | 'todas' | 'concluidas' | 'abertas' | 'categorias' = 'login';
 
   constructor() {
     this.carregarUsuarios();
     this.carregarTema();
+    this.carregarCategorias();
 
     const emailLogado = localStorage.getItem("usuarioLogadoEmail");
     if (emailLogado) {
@@ -221,13 +231,15 @@ export class TarefasComponent {
       titulo: this.novaTarefa.titulo,
       descricao: this.novaTarefa.descricao,
       data: this.novaTarefa.data,
+      prioridade: this.novaTarefa.prioridade,
+      categoria: this.novaTarefa.categoria,
       concluida: false
     };
 
     this.tarefas.push(newT);
     this.salvarLocalStorage();
     form.resetForm();
-    this.novaTarefa = { titulo: '', descricao: '', data: '' };
+    this.novaTarefa = { titulo: '', descricao: '', data: '', prioridade: 'media', categoria: '' };
     this.erroTarefaInvalida = false;
     this.exibirAlertTarefaSalva();
   }
@@ -290,7 +302,7 @@ export class TarefasComponent {
   cancelarEdicao() {
     this.modoEdicao = false;
     this.tarefaEditando = null;
-    this.novaTarefa = { titulo: '', descricao: '', data: '' };
+    this.novaTarefa = { titulo: '', descricao: '', data: '', prioridade: 'media', categoria: '' };
     this.formEdicaoAtual = null;
   }
 
@@ -315,9 +327,82 @@ export class TarefasComponent {
     this.cancelarExclusao();
   }
 
-  tarefasFiltradas(): { id: string; titulo: string; descricao: string; data: string; concluida: boolean }[] {
+  tarefasFiltradas(): { id: string; titulo: string; descricao: string; data: string; prioridade: 'baixa' | 'media' | 'alta'; categoria: string; concluida: boolean }[] {
     if (this.aba === 'concluidas') return this.tarefas.filter(t => t.concluida);
     if (this.aba === 'abertas') return this.tarefas.filter(t => !t.concluida);
     return this.tarefas;
+  }
+
+  // ---- CATEGORIAS ----
+  carregarCategorias() {
+    const dados = localStorage.getItem("categorias");
+    if (!dados) {
+      this.categorias = [];
+      return;
+    }
+    try {
+      this.categorias = JSON.parse(dados);
+    } catch (e) {
+      console.warn('Dados de categorias corrompidos no localStorage — limpando', e);
+      this.categorias = [];
+      localStorage.removeItem('categorias');
+    }
+  }
+
+  salvarCategorias() {
+    try {
+      localStorage.setItem("categorias", JSON.stringify(this.categorias));
+    } catch (e) {
+      console.error('Erro ao salvar categorias no localStorage', e);
+    }
+  }
+
+  adicionarCategoria() {
+    this.erroNomeCategoria = !this.novaCategoria.nome.trim();
+    if (this.erroNomeCategoria) return;
+
+    const novaCategoria = {
+      id: Date.now().toString() + Math.random().toString(16).slice(2),
+      nome: this.novaCategoria.nome,
+      cor: this.novaCategoria.cor
+    };
+
+    this.categorias.push(novaCategoria);
+    this.salvarCategorias();
+    this.novaCategoria = { nome: '', cor: '#3b82f6' };
+    this.erroNomeCategoria = false;
+  }
+
+  excluirCategoria(categoria: any) {
+    const categoriasUsadas = this.tarefas.filter(t => t.categoria === categoria.nome).length;
+    
+    if (categoriasUsadas > 0) {
+      this.categoriaSendoUsada = true;
+      this.erroExclusaoCategoria = `Não é possível excluir esta categoria. Ela está sendo usada em ${categoriasUsadas} tarefa${categoriasUsadas > 1 ? 's' : ''}.`;
+      return;
+    }
+
+    this.categoriaSelecionadaParaExcluir = categoria;
+    this.categoriaSendoUsada = false;
+    this.erroExclusaoCategoria = '';
+  }
+
+  cancelarExclusaoCategoria() {
+    this.categoriaSelecionadaParaExcluir = null;
+    this.categoriaSendoUsada = false;
+    this.erroExclusaoCategoria = '';
+  }
+
+  confirmarExclusaoCategoria() {
+    if (this.categoriaSelecionadaParaExcluir) {
+      this.categorias = this.categorias.filter(c => c.id !== this.categoriaSelecionadaParaExcluir!.id);
+      this.salvarCategorias();
+    }
+    this.cancelarExclusaoCategoria();
+  }
+
+  obterCorCategoria(nomeCategoria: string): string {
+    const cat = this.categorias.find(c => c.nome === nomeCategoria);
+    return cat ? cat.cor : '#6b7280';
   }
 }
