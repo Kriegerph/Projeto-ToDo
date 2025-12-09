@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -12,23 +12,27 @@ import { CommonModule } from '@angular/common';
 export class TarefasComponent {
   hoje = new Date().toISOString().split('T')[0];
 
-  novaTarefa = { titulo: '', descricao: '', data: '' };
-  tarefas: any[] = [];
+  // Tipos mais explícitos
+  interfaceTarefa = true;
 
-  tarefaSelecionadaParaExcluir: any = null;
-  tarefaEditando: any = null;
+  novaTarefa: { titulo: string; descricao: string; data: string } = { titulo: '', descricao: '', data: '' };
+  tarefas: { id: string; titulo: string; descricao: string; data: string; concluida: boolean }[] = [];
+
+  tarefaSelecionadaParaExcluir: { id: string; titulo: string; descricao: string; data: string; concluida: boolean } | null = null;
+  tarefaEditando: { id: string; titulo: string; descricao: string; data: string; concluida: boolean } | null = null;
   modoEdicao = false;
 
   formEdicaoAtual: NgForm | null = null;
-  tarefaConfirmacaoEdicao: any = null;
+  tarefaConfirmacaoEdicao: { id?: string; titulo: string; descricao: string; data: string; concluida?: boolean } | null = null;
   alertTarefaSalva = false;
+  private alertTimeout: any = null;
 
   // ----- USUÁRIOS -----
-  usuarios: any[] = [];
-  usuario = { nome: '', sobrenome: '', idade: '', email: '', senha: '' };
+  usuarios: { nome: string; sobrenome: string; idade: string; email: string; senha: string }[] = [];
+  usuario: { nome: string; sobrenome: string; idade: string; email: string; senha: string } = { nome: '', sobrenome: '', idade: '', email: '', senha: '' };
   loginEmail = '';
   loginSenha = '';
-  usuarioLogado: any = null;
+  usuarioLogado: { nome: string; sobrenome: string; idade: string; email: string; senha: string } | null = null;
 
   // ----- ERROS -----
   erroLoginEmail = false;
@@ -42,15 +46,16 @@ export class TarefasComponent {
   erroLoginObrigatorio = false;
   erroTarefaInvalida = false;
 
-
   // ----- TEMA -----
   temaClaro = false;
+
+  // ----- RESPONSIVIDADE -----
+  sidebarAberta = false; // Controle do menu mobile
 
   aba: 'login' | 'cadastro' | 'config' | 'cadastrar' | 'todas' | 'concluidas' | 'abertas' = 'login';
 
   constructor() {
     this.carregarUsuarios();
-    this.carregarLocalStorage();
     this.carregarTema();
 
     const emailLogado = localStorage.getItem("usuarioLogadoEmail");
@@ -59,13 +64,29 @@ export class TarefasComponent {
       if (user) {
         this.usuarioLogado = user;
         this.aba = 'cadastrar';
-        this.carregarLocalStorage(); // carrega tarefas do usuário logado
+        this.carregarLocalStorage();
       } else {
         this.aba = 'login';
       }
     } else {
       this.aba = 'login';
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.alertTimeout) {
+      clearTimeout(this.alertTimeout);
+      this.alertTimeout = null;
+    }
+  }
+
+  // ---- MENU MOBILE ----
+  alternarSidebar() {
+    this.sidebarAberta = !this.sidebarAberta;
+  }
+
+  fecharSidebar() {
+    this.sidebarAberta = false;
   }
 
   // ---- ABA ----
@@ -75,6 +96,7 @@ export class TarefasComponent {
       this.resetErrosCadastro();
     }
     this.aba = nome;
+    this.fecharSidebar(); // Fecha o menu ao clicar em um item no mobile
   }
 
   // ---- CADASTRO ----
@@ -89,63 +111,76 @@ export class TarefasComponent {
 
   salvarUsuario() {
     this.resetErrosCadastro();
-
-    // Valida cada campo
     this.erroNome = !this.usuario.nome.trim();
     this.erroSobrenome = !this.usuario.sobrenome.trim();
     this.erroIdade = !this.usuario.idade || isNaN(Number(this.usuario.idade));
     this.erroEmail = !this.usuario.email.includes('@');
     this.erroSenha = !this.usuario.senha || this.usuario.senha.length < 5;
-
-    // Verifica email duplicado
     this.erroEmailExistente = this.usuarios.some(u => u.email === this.usuario.email);
 
     if (this.erroNome || this.erroSobrenome || this.erroIdade || this.erroEmail || this.erroSenha || this.erroEmailExistente) {
-      return; // Não cadastra se houver erros
+      return;
     }
 
-    // Adiciona novo usuário
     this.usuarios.push({ ...this.usuario });
-    localStorage.setItem("usuarios", JSON.stringify(this.usuarios));
-
-    // Limpa formulário e vai para login
+    try {
+      localStorage.setItem("usuarios", JSON.stringify(this.usuarios));
+    } catch (e) {
+      console.error('Erro ao salvar usuários no localStorage', e);
+    }
     this.usuario = { nome: '', sobrenome: '', idade: '', email: '', senha: '' };
     this.mudarAba('login');
   }
 
   carregarUsuarios() {
     const dados = localStorage.getItem("usuarios");
-    this.usuarios = dados ? JSON.parse(dados) : [];
+    if (!dados) {
+      this.usuarios = [];
+      return;
+    }
+    try {
+      this.usuarios = JSON.parse(dados);
+    } catch (e) {
+      console.warn('Dados de usuários corrompidos no localStorage — limpando', e);
+      this.usuarios = [];
+      localStorage.removeItem('usuarios');
+    }
   }
 
   // ---- LOGIN ----
   login() {
-    const usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    let usuariosCadastrados: any[] = [];
+    try {
+      usuariosCadastrados = JSON.parse(localStorage.getItem("usuarios") || "[]");
+    } catch (e) {
+      usuariosCadastrados = [];
+    }
     const usuarioEncontrado = usuariosCadastrados.find((u: any) => u.email === this.loginEmail);
 
-    // Feedback único de erro
     if (!usuarioEncontrado || this.loginSenha !== usuarioEncontrado.senha) {
       this.erroLoginEmail = true;
       this.erroLoginSenha = true;
       return;
     }
 
-    // Login válido
     this.usuarioLogado = usuarioEncontrado;
-    localStorage.setItem("usuarioLogadoEmail", usuarioEncontrado.email);
+    try {
+      localStorage.setItem("usuarioLogadoEmail", usuarioEncontrado.email);
+    } catch (e) {
+      console.error('Erro ao salvar usuário logado', e);
+    }
+    this.erroLoginEmail = false;
+    this.erroLoginSenha = false;
     this.mudarAba('cadastrar');
   }
 
-
-
-
   sair() {
     this.usuarioLogado = null;
-    localStorage.removeItem("usuarioLogadoEmail"); // remove persistência
+    localStorage.removeItem("usuarioLogadoEmail");
     this.aba = 'login';
-    this.tarefas = []; // limpa tarefas visíveis
+    this.tarefas = [];
+    this.fecharSidebar();
   }
-
 
   // ---- TEMA ----
   carregarTema() {
@@ -156,16 +191,19 @@ export class TarefasComponent {
   alternarTema() {
     this.temaClaro = !this.temaClaro;
     localStorage.setItem("tema", this.temaClaro ? 'claro' : 'escuro');
+    this.fecharSidebar();
   }
 
-  // FUNÇÃO PARA ALERT
   exibirAlertTarefaSalva() {
     this.alertTarefaSalva = true;
-    setTimeout(() => this.alertTarefaSalva = false, 3000); // some após 3s
+    if (this.alertTimeout) clearTimeout(this.alertTimeout);
+    this.alertTimeout = setTimeout(() => {
+      this.alertTarefaSalva = false;
+      this.alertTimeout = null;
+    }, 3000);
   }
 
   // ---- TAREFAS ----
-  // ADICIONAR TAREFA
   adicionarTarefa(form: NgForm) {
     if (!this.usuarioLogado) {
       this.erroLoginObrigatorio = true;
@@ -178,25 +216,45 @@ export class TarefasComponent {
       return;
     }
 
-    this.tarefas.push({ ...this.novaTarefa, concluida: false });
+    const newT = {
+      id: Date.now().toString() + Math.random().toString(16).slice(2),
+      titulo: this.novaTarefa.titulo,
+      descricao: this.novaTarefa.descricao,
+      data: this.novaTarefa.data,
+      concluida: false
+    };
+
+    this.tarefas.push(newT);
     this.salvarLocalStorage();
     form.resetForm();
     this.novaTarefa = { titulo: '', descricao: '', data: '' };
-
-    // Mostrar alert
+    this.erroTarefaInvalida = false;
     this.exibirAlertTarefaSalva();
   }
 
-
   salvarLocalStorage() {
     if (!this.usuarioLogado) return;
-    localStorage.setItem(`tarefas_${this.usuarioLogado.email}`, JSON.stringify(this.tarefas));
+    try {
+      localStorage.setItem(`tarefas_${this.usuarioLogado.email}`, JSON.stringify(this.tarefas));
+    } catch (e) {
+      console.error('Erro ao salvar tarefas', e);
+    }
   }
 
   carregarLocalStorage() {
     if (!this.usuarioLogado) return;
     const d = localStorage.getItem(`tarefas_${this.usuarioLogado.email}`);
-    this.tarefas = d ? JSON.parse(d) : [];
+    if (!d) {
+      this.tarefas = [];
+      return;
+    }
+    try {
+      this.tarefas = JSON.parse(d);
+    } catch (e) {
+      console.warn('Dados de tarefas corrompidos — limpando', e);
+      this.tarefas = [];
+      localStorage.removeItem(`tarefas_${this.usuarioLogado.email}`);
+    }
   }
 
   // ---- EDIÇÃO ----
@@ -213,7 +271,6 @@ export class TarefasComponent {
     this.formEdicaoAtual = form;
   }
 
-  // CONFIRMAR EDIÇÃO
   confirmarEdicao() {
     if (!this.formEdicaoAtual || !this.tarefaEditando) return;
     Object.assign(this.tarefaEditando, this.tarefaConfirmacaoEdicao);
@@ -222,6 +279,7 @@ export class TarefasComponent {
     this.cancelarEdicao();
     this.tarefaConfirmacaoEdicao = null;
     this.formEdicaoAtual = null;
+    this.erroTarefaInvalida = false;
     this.mudarAba('todas');
   }
 
@@ -250,12 +308,14 @@ export class TarefasComponent {
   }
 
   excluirDefinitivo() {
-    this.tarefas = this.tarefas.filter(t => t !== this.tarefaSelecionadaParaExcluir);
+    if (this.tarefaSelecionadaParaExcluir) {
+      this.tarefas = this.tarefas.filter(t => t.id !== this.tarefaSelecionadaParaExcluir!.id);
+    }
     this.salvarLocalStorage();
     this.cancelarExclusao();
   }
 
-  tarefasFiltradas() {
+  tarefasFiltradas(): { id: string; titulo: string; descricao: string; data: string; concluida: boolean }[] {
     if (this.aba === 'concluidas') return this.tarefas.filter(t => t.concluida);
     if (this.aba === 'abertas') return this.tarefas.filter(t => !t.concluida);
     return this.tarefas;
