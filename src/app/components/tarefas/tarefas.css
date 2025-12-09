@@ -1,0 +1,148 @@
+:host {
+  display:block;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* layout */
+.layout {
+  display:grid;
+  grid-template-rows:60px 1fr;
+  grid-template-columns:220px 1fr;
+  height:100%;
+}
+
+/* NAVBAR */
+.navbar-top{
+  grid-column: 1 / span 2;
+  background:#1b1f27;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding:0 20px;
+  box-shadow:0 2px 4px rgba(0,0,0,.2);
+  z-index:10;
+}
+
+/* SIDEBAR */
+.sidebar{
+  background:#232832;
+  color:white;
+  padding:15px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  overflow-y:auto;
+}
+
+.sidebar button{
+  background:none;
+  border:none;
+  padding:10px;
+  text-align:left;
+  color:white;
+  border-radius:5px;
+  cursor:pointer;
+}
+.sidebar button.active,
+.sidebar button:hover{
+  background:#333a48;
+}
+
+.sub{ margin-left:10px; display:flex; flex-direction:column; }
+
+/* CONTEÚDO */
+.conteudo{
+  background:#0d1117;
+  color:white;
+  padding:30px;
+  overflow-y:auto;
+  box-sizing:border-box;
+}
+
+.centro{ display:flex; justify-content:center; align-items:flex-start; margin-top:30px; }
+
+/* card */
+.card-tarefas{
+  width:100%;
+  max-width:420px;
+  padding:20px;
+  background:#1f2937;
+  color:white;
+  border-radius:10px;
+  box-shadow:0 4px 6px rgba(0,0,0,.3);
+}
+
+/* tabela */
+.tabela{ width:100%; margin:auto; }
+.ok{ text-decoration: line-through; opacity:.6; }
+
+/* modal */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.6);
+  z-index:999;
+}
+.modal-card{
+  background:#fff;
+  padding:20px;
+  width:320px;
+  border-radius:10px;
+  text-align:center;
+  color:#000;
+}
+
+/* =================== */
+/* TEMA CLARO FIXO   */
+/* =================== */
+
+.light .conteudo{ background:#f7f7f7; color:#111; }
+.light .navbar-top,
+.light .sidebar{ background:#e9eef5; color:#111; }
+.light .card-tarefas{ background:#fff; color:#111; }
+.light .table{ background:#fff !important; color:#111 !important; }
+.light .tabela td, .light .tabela th{ color:#111 !important; border-color:#ccc; }
+.light .sidebar button{ color:#111; }
+.light .sidebar button:hover,
+.light .sidebar button.active{ background:#dce2ec; }
+
+/* Correção mínima do tema claro */
+body.light-theme,
+.light-theme * {
+    color: #000 !important;
+}
+
+/* tabela clara */
+body.light-theme table,
+body.light-theme th,
+body.light-theme td {
+    background-color: #fff !important;
+    color: #000 !important;
+    border-color: #ccc !important;
+}
+
+.light .navbar-top .btn {
+  color: #111;
+  border-color: #aaa;
+}
+
+.light .navbar-top .btn:hover {
+  background: #ddd;
+  color: #111;
+}
+
+/* Botão Sair no navbar (quando tema claro) */
+.light .navbar-top .btn-danger {
+  color: #fff; /* texto branco */
+  border-color: #f00; /* mantém vermelho ou ajuste se quiser */
+}
+
+.light .navbar-top .btn-danger:hover {
+  background-color: #ff4d4d; /* vermelho mais claro ao passar o mouse */
+  color: #fff;
+}
