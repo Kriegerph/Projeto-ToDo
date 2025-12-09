@@ -134,7 +134,13 @@
         <button *ngIf="modoEdicao" type="button" class="btn btn-secondary w-100 mt-2" (click)="cancelarEdicao()">
           Cancelar Edição
         </button>
+
+        <div *ngIf="alertTarefaSalva" class="alert alert-success mt-2" role="alert">
+          Tarefa salva com sucesso!
+        </div>
+
       </form>
+
     </section>
 
     <section *ngIf="aba!=='login' && aba!=='cadastro' && aba!=='config' && aba!=='cadastrar'" class="centro">

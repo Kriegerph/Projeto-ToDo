@@ -21,6 +21,7 @@ export class TarefasComponent {
 
   formEdicaoAtual: NgForm | null = null;
   tarefaConfirmacaoEdicao: any = null;
+  alertTarefaSalva = false;
 
   // ----- USUÁRIOS -----
   usuarios: any[] = [];
@@ -157,16 +158,23 @@ export class TarefasComponent {
     localStorage.setItem("tema", this.temaClaro ? 'claro' : 'escuro');
   }
 
+  // FUNÇÃO PARA ALERT
+  exibirAlertTarefaSalva() {
+    this.alertTarefaSalva = true;
+    setTimeout(() => this.alertTarefaSalva = false, 3000); // some após 3s
+  }
+
   // ---- TAREFAS ----
+  // ADICIONAR TAREFA
   adicionarTarefa(form: NgForm) {
     if (!this.usuarioLogado) {
-      this.erroLoginObrigatorio = true; // flag para mostrar o alert
+      this.erroLoginObrigatorio = true;
       this.mudarAba('login');
       return;
     }
 
     if (form.invalid || this.novaTarefa.titulo.trim().length < 3) {
-      this.erroTarefaInvalida = true; // flag para alert bootstrap se quiser
+      this.erroTarefaInvalida = true;
       return;
     }
 
@@ -174,6 +182,9 @@ export class TarefasComponent {
     this.salvarLocalStorage();
     form.resetForm();
     this.novaTarefa = { titulo: '', descricao: '', data: '' };
+
+    // Mostrar alert
+    this.exibirAlertTarefaSalva();
   }
 
 
@@ -189,17 +200,60 @@ export class TarefasComponent {
   }
 
   // ---- EDIÇÃO ----
-  editarTarefa(t: any) { this.modoEdicao = true; this.tarefaEditando = t; this.novaTarefa = { ...t }; this.mudarAba('cadastrar'); }
-  solicitarConfirmacaoEdicao(form: NgForm) { if (form.invalid) return; this.tarefaConfirmacaoEdicao = { ...this.novaTarefa }; this.formEdicaoAtual = form; }
-  confirmarEdicao() { if (!this.formEdicaoAtual || !this.tarefaEditando) return; Object.assign(this.tarefaEditando, this.tarefaConfirmacaoEdicao); this.salvarLocalStorage(); this.formEdicaoAtual.resetForm(); this.cancelarEdicao(); this.tarefaConfirmacaoEdicao = null; this.formEdicaoAtual = null; this.mudarAba('todas'); }
-  cancelarConfirmacaoEdicao() { this.tarefaConfirmacaoEdicao = null; }
-  cancelarEdicao() { this.modoEdicao = false; this.tarefaEditando = null; this.novaTarefa = { titulo: '', descricao: '', data: '' }; this.formEdicaoAtual = null; }
+  editarTarefa(t: any) {
+    this.modoEdicao = true;
+    this.tarefaEditando = t;
+    this.novaTarefa = { ...t };
+    this.mudarAba('cadastrar');
+  }
 
-  alternarStatus(i: number) { this.tarefas[i].concluida = !this.tarefas[i].concluida; this.salvarLocalStorage(); }
+  solicitarConfirmacaoEdicao(form: NgForm) {
+    if (form.invalid) return;
+    this.tarefaConfirmacaoEdicao = { ...this.novaTarefa };
+    this.formEdicaoAtual = form;
+  }
 
-  confirmarExclusao(t: any) { this.tarefaSelecionadaParaExcluir = t; }
-  cancelarExclusao() { this.tarefaSelecionadaParaExcluir = null; }
-  excluirDefinitivo() { this.tarefas = this.tarefas.filter(t => t !== this.tarefaSelecionadaParaExcluir); this.salvarLocalStorage(); this.cancelarExclusao(); }
+  // CONFIRMAR EDIÇÃO
+  confirmarEdicao() {
+    if (!this.formEdicaoAtual || !this.tarefaEditando) return;
+    Object.assign(this.tarefaEditando, this.tarefaConfirmacaoEdicao);
+    this.salvarLocalStorage();
+    this.formEdicaoAtual.resetForm();
+    this.cancelarEdicao();
+    this.tarefaConfirmacaoEdicao = null;
+    this.formEdicaoAtual = null;
+    this.mudarAba('todas');
+  }
+
+  cancelarConfirmacaoEdicao() {
+    this.tarefaConfirmacaoEdicao = null;
+  }
+
+  cancelarEdicao() {
+    this.modoEdicao = false;
+    this.tarefaEditando = null;
+    this.novaTarefa = { titulo: '', descricao: '', data: '' };
+    this.formEdicaoAtual = null;
+  }
+
+  alternarStatus(i: number) {
+    this.tarefas[i].concluida = !this.tarefas[i].concluida;
+    this.salvarLocalStorage();
+  }
+
+  confirmarExclusao(t: any) {
+    this.tarefaSelecionadaParaExcluir = t;
+  }
+
+  cancelarExclusao() {
+    this.tarefaSelecionadaParaExcluir = null;
+  }
+
+  excluirDefinitivo() {
+    this.tarefas = this.tarefas.filter(t => t !== this.tarefaSelecionadaParaExcluir);
+    this.salvarLocalStorage();
+    this.cancelarExclusao();
+  }
 
   tarefasFiltradas() {
     if (this.aba === 'concluidas') return this.tarefas.filter(t => t.concluida);
