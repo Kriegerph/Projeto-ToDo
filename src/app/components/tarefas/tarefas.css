@@ -3,13 +3,14 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* LAYOUT PADRÃO (DESKTOP) */
 .layout {
   display: grid;
   grid-template-rows: 60px 1fr;
-  grid-template-columns: 240px 1fr; /* Aumentei um pouco */
+  grid-template-columns: 250px 1fr;
   height: 100%;
   transition: all 0.3s ease;
 }
@@ -36,11 +37,6 @@
   z-index: 15;
 }
 
-/* Garantir que elementos com .text-muted fiquem visíveis no tema escuro */
-.tabela-responsiva .text-muted {
-  color: rgba(255,255,255,0.72) !important;
-}
-
 .sidebar button {
   background: none;
   border: none;
@@ -50,6 +46,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .sidebar button.active,
@@ -64,13 +61,6 @@
   flex-direction: column;
   border-left: 1px solid #444;
   padding-left: 5px;
-}
-
-/* Primeiro grupo de botões na sidebar */
-.sidebar > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 /* CONTEÚDO */
@@ -89,7 +79,7 @@
   margin-top: 20px;
 }
 
-/* CARDS E FORMULÁRIOS */
+/* CARDS */
 .card-tarefas {
   width: 100%;
   max-width: 450px;
@@ -100,17 +90,16 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
-/* TABELA PADRÃO (Desktop) */
+/* TABELA */
 .listagem-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 .tabela-responsiva {
   width: 100%;
   vertical-align: middle;
 }
-.ok { text-decoration: line-through; opacity: 0.6; }
-
+.ok { text-decoration: line-through; opacity: 0.5; }
 
 /* MODAL */
 .modal-backdrop {
@@ -139,7 +128,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
-  z-index: 14;
+  z-index: 14; /* Abaixo do Navbar (20) e Sidebar (15) */
   opacity: 0;
   visibility: hidden;
   transition: 0.3s;
@@ -149,47 +138,34 @@
   visibility: visible;
 }
 
-
 /* ========================================= */
-/* RESPONSIVIDADE (MOBILE)            */
+/* RESPONSIVIDADE (MOBILE)                 */
 /* ========================================= */
 
 @media (max-width: 768px) {
   .layout {
-    grid-template-columns: 1fr; /* Remove a coluna do sidebar */
+    grid-template-columns: 1fr;
   }
 
-  /* Esconde sidebar por padrão */
   .sidebar {
     position: fixed;
-    top: 60px; /* altura da navbar */
+    top: 60px;
     bottom: 0;
-    left: -260px; /* Escondido à esquerda */
+    left: -260px;
     width: 260px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 4px 0 10px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Garantir que o primeiro div da sidebar ocupe o espaço e coloque itens em coluna */
-  .sidebar > div:first-child {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 100%;
   }
 
   .sidebar.mobile-open {
-    transform: translateX(260px); /* Desliza para dentro */
-    left: -260px; /* Mantém base, move com transform */
+    transform: translateX(260px);
   }
 
   .conteudo {
-    padding: 15px; /* Menos padding no mobile */
+    padding: 15px;
   }
 
-  /* TRANSFORMAÇÃO DA TABELA EM CARDS */
+  /* CARD VIEW MOBILE */
   .tabela-responsiva, 
   .tabela-responsiva tbody, 
   .tabela-responsiva tr, 
@@ -199,12 +175,12 @@
   }
 
   .tabela-responsiva thead {
-    display: none; /* Esconde cabeçalho */
+    display: none;
   }
 
   .tabela-responsiva tr {
     margin-bottom: 15px;
-    background: #1f2937; /* Cor de fundo do card */
+    background: #1f2937;
     border-radius: 10px;
     padding: 15px;
     border: 1px solid #374151;
@@ -225,7 +201,6 @@
     padding-top: 15px;
   }
 
-  /* Injeta o nome da coluna via CSS */
   .tabela-responsiva td::before {
     content: attr(data-label);
     font-weight: bold;
@@ -235,7 +210,6 @@
     margin-right: 15px;
   }
 
-  /* Estilos específicos dentro do card */
   .fw-bold-mobile {
     font-size: 1.1rem;
     font-weight: 600;
@@ -243,11 +217,13 @@
     text-align: left !important;
     display: block !important;
   }
-  .fw-bold-mobile::before { display: none; } /* Remove label do título pra ficar clean */
+  .fw-bold-mobile::before { display: none; }
 
   .text-wrap-mobile {
     text-align: left !important;
     display: block !important;
+    font-size: 0.9rem;
+    color: #d1d5db;
   }
   .text-wrap-mobile::before { display: block; margin-bottom: 5px; }
 
@@ -261,7 +237,7 @@
 }
 
 /* =================== */
-/* TEMA CLARO FIXO   */
+/* TEMA CLARO        */
 /* =================== */
 .light .navbar-top { background: #fff; color: #333; border-bottom: 1px solid #eee; }
 .light .navbar-top .btn-outline-light { color: #333; border-color: #ddd; }
@@ -271,11 +247,8 @@
 .light .conteudo { background: #f0f2f5; color: #212529; }
 .light .card-tarefas { background: #fff; color: #212529; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-/* forçar cor do nome do usuário no rodapé no tema claro */
 .light .sidebar .sidebar-footer,
-.light .sidebar .sidebar-footer b {
-  color: #212529;
-}
+.light .sidebar .sidebar-footer b { color: #212529; }
 
 /* Tabela Light Mobile */
 .light .tabela-responsiva tr {
@@ -286,34 +259,25 @@
   border-bottom: 1px solid #eee;
 }
 .light .fw-bold-mobile { color: #000; }
+.light .text-wrap-mobile { color: #4b5563; }
 .light .tabela-responsiva td::before { color: #6c757d; }
 
-/* Correções Tabela Desktop Light */
-.light .table-hover tbody tr:hover { background-color: #f1f3f5; }
-.light .table { color: #212529; background-color: #fff; }
+/* Tabela Desktop Light */
+.light .table-hover tbody tr:hover { background-color: #e9ecef; }
+.light .table { color: #212529; background-color: transparent; }
 
-/* Forçar cor escura da mensagem "Nenhuma tarefa" no tema claro */
-.light .tabela-responsiva .text-muted {
-  color: #212529 !important;
-}
-
-/* =================== */
-/* PRIORIDADES & CATEGORIAS */
-/* =================== */
-
+/* CATEGORIAS */
 .categoria-item {
-  background: #f0f2f5;
+  background: #2d3442; /* Escuro por padrão */
+  color: white;
   border-left: 4px solid #ccc;
   transition: all 0.2s;
 }
-
-.categoria-item:hover {
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
 .light .categoria-item {
-  background-color: #f8f9fa;
+  background-color: #fff;
+  color: #212529;
+  border: 1px solid #dee2e6;
+  border-left-width: 4px;
 }
 
 .categoria-cor {
@@ -323,14 +287,194 @@
   border: 2px solid rgba(0,0,0,0.1);
 }
 
-/* Badges de prioridade com cores consistentes */
-.badge.bg-success { background-color: #10b981 !important; }
-.badge.bg-warning { background-color: #f59e0b !important; }
-.badge.bg-danger { background-color: #ef4444 !important; }
-
-/* Garantir contraste de badges */
 .badge {
-  color: white !important;
-  font-weight: 600;
-  padding: 0.35rem 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Ajustes para MODO ESCURO: garantir legibilidade de textos 'muted' e legendas */
+
+.layout:not(.light) .text-muted {
+  color: rgba(255,255,255,0.78) !important;
+}
+.layout:not(.light) .small {
+  color: rgba(255,255,255,0.88) !important;
+}
+/* CORREÇÃO APLICADA: Garantir que o texto de ERRO seja sempre vermelho */
+.layout:not(.light) .text-danger,
+.layout:not(.light) .text-danger .small {
+  color: #dc3545 !important; 
+}
+
+/* Correção forçada para o texto do ALERTA AMARELO (alert-warning) no Tema Escuro */
+.layout:not(.light) .alert-warning {
+    /* Força o fundo original do Bootstrap, se ele tiver sido alterado */
+    background-color: #ffc107; 
+    border-color: #ffc107;
+    
+    /* FORÇA A COR DO TEXTO PARA PRETO, garantindo alto contraste */
+    color: #000 !important;
+}
+
+/* Garante que o ícone e o texto small (se aplicável) também sejam pretos */
+.layout:not(.light) .alert-warning i,
+.layout:not(.light) .alert-warning .small {
+    color: #000 !important;
+}
+
+.layout:not(.light) .categoria-item {
+  background: #2d3442; /* reafirmar fundo escuro */
+  color: #fff;
+}
+.layout:not(.light) .categoria-item .fw-bold {
+  color: #fff !important;
+}
+/* Garantir badges visíveis no modo escuro quando não houver cor de texto inline */
+.layout:not(.light) .badge {
+  color: #fff;
+}
+
+.btn-sair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* Hover */
+.btn-sair:hover {
+  transform: scale(1.2);
+}
+
+/* Cor do ícone conforme tema */
+.btn-sair i {
+  color: var(--cor-sair);
+  transition: color 0.2s ease;
+}
+
+/* =================== */
+/* PESQUISA/FILTRO     */
+/* =================== */
+
+.search-box .input-group-text,
+.search-box .form-control {
+    border-color: #374151;
+    background: #1f2937;
+    color: white;
+}
+
+/* Modo Claro */
+.light .search-box .input-group-text,
+.light .search-box .form-control {
+    border-color: #ced4da;
+    background: #fff;
+    color: #212529;
+}
+
+/* Ajuste no botão de limpar (x) */
+.search-box .btn-outline-secondary {
+    color: #9ca3af;
+    border-color: #374151;
+    background-color: #1f2937;
+}
+
+.light .search-box .btn-outline-secondary {
+    color: #6c757d;
+    border-color: #ced4da;
+    background-color: #fff;
+}
+
+/* =================== */
+/* NOVO TUTORIAL/AJUDA */
+/* =================== */
+
+.tutorial-list {
+  padding: 0;
+}
+
+.tutorial-item {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.light .tutorial-item {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.btn-tutorial-link {
+  background: none;
+  border: none;
+  color: #adb5bd;
+  border-radius: 0; /* Para preencher a largura */
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+
+.btn-tutorial-link:hover {
+  background: #333a48;
+  color: white;
+}
+
+.btn-tutorial-link.active {
+  background: #333a48;
+  color: white;
+}
+
+/* Tema Claro */
+.light .btn-tutorial-link {
+  color: #495057;
+}
+.light .btn-tutorial-link:hover {
+  background: #e9ecef;
+  color: #000;
+}
+.light .btn-tutorial-link.active {
+  background: #dee2e6;
+  color: #000;
+}
+
+/* Conteúdo do Tutorial (Área de Expansão) */
+.tutorial-content {
+  background-color: #1b1f27;
+  color: #f8f9fa;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Conteúdo Ativo/Expandido */
+.tutorial-content.open {
+  max-height: 1000px; /* Valor alto para simular auto height (animação) */
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+.light .tutorial-content {
+  background-color: #fff;
+  color: #212529;
+}
+
+/* Estilização dos textos internos (ul, li, p) */
+.tutorial-content p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.tutorial-content ul {
+  padding-left: 20px;
+  margin-bottom: 1rem;
+}
+.tutorial-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Título Separador (no mobile, para melhorar o visual) */
+.border-bottom-light {
+    border-bottom: 1px solid #dee2e6 !important;
 }

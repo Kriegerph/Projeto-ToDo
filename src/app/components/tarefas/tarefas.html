@@ -18,7 +18,15 @@
         <button class="btn btn-outline-light btn-sm" (click)="mudarAba('cadastro')">Cadastro</button>
       </ng-container>
       <ng-template #logado>
-        <button class="btn btn-danger btn-sm" (click)="sair()">Sair</button>
+        <div class="d-flex align-items-center gap-2">
+          <span class="me-1 d-none d-md-inline" [class.text-dark]="temaClaro"
+            [class.text-white]="!temaClaro">{{usuarioLogado.nome}}</span>
+
+          <button class="btn-sair" (click)="sair()">
+            <i class="bi bi-box-arrow-right" [style.color]="corBotaoSair"></i>
+          </button>
+
+        </div>
       </ng-template>
     </div>
   </nav>
@@ -27,9 +35,10 @@
 
   <aside class="sidebar d-flex flex-column" [class.mobile-open]="sidebarAberta">
     <div>
-      <button (click)="mudarAba('cadastrar')" [class.active]="aba==='cadastrar'">
+      <button *ngIf="usuarioLogado" (click)="mudarAba('cadastrar')" [class.active]="aba==='cadastrar'">
         <i class="bi bi-plus-circle me-2"></i> {{ modoEdicao ? 'Editando' : 'Nova Tarefa' }}
       </button>
+
       <button (click)="mudarAba('todas')" [class.active]="aba==='todas'">
         <i class="bi bi-list-task me-2"></i> Tarefas
       </button>
@@ -43,26 +52,24 @@
         </button>
       </div>
 
-      <button (click)="mudarAba('categorias')" [class.active]="aba==='categorias'">
+      <button *ngIf="usuarioLogado" (click)="mudarAba('categorias')" [class.active]="aba==='categorias'">
         <i class="bi bi-tag me-2"></i> Categorias
       </button>
     </div>
 
     <div class="sidebar-footer mt-auto">
-      <ng-container *ngIf="usuarioLogado; else semUser">
-        <div class="d-flex align-items-center gap-2 small">
-          <div class="text-truncate" style="max-width: 120px;">
-             <b>{{usuarioLogado.nome}}</b>
-          </div>
-          <button class="btn btn-outline-light btn-sm p-1 ms-auto" (click)="mudarAba('config')">
-            <i class="bi bi-gear"></i>
-          </button>
-        </div>
-      </ng-container>
 
-      <ng-template #semUser>
-        <div class="small text-muted">Não conectado</div>
-      </ng-template>
+      <button (click)="mudarAba('ajuda')" [class.active]="aba==='ajuda'">
+        <i class="bi bi-question-circle me-2"></i> Ajuda
+      </button>
+
+      <button (click)="mudarAba('config')" [class.active]="aba==='config'">
+        <i class="bi bi-gear me-2"></i> Configurações
+      </button>
+
+      <ng-container *ngIf="!usuarioLogado">
+        <div class="small text-muted p-2">Faça login para salvar</div>
+      </ng-container>
     </div>
   </aside>
 
@@ -72,7 +79,7 @@
       <form class="card-tarefas" (ngSubmit)="login()">
         <h4 class="text-center mb-3">Login</h4>
         <input class="form-control mb-1" placeholder="Email" [(ngModel)]="loginEmail" name="e" required>
-        <div *ngIf="erroLoginEmail" class="text-danger small">Email incorreto</div>
+        <div *ngIf="erroLoginEmail" class="text-danger small">Email incorreto ou não encontrado</div>
 
         <input type="password" class="form-control mt-2" placeholder="Senha" [(ngModel)]="loginSenha" name="s" required>
         <div *ngIf="erroLoginSenha" class="text-danger small">Senha incorreta</div>
@@ -82,41 +89,40 @@
     </section>
 
     <section *ngIf="aba==='cadastro'" class="centro">
-      <form class="card-tarefas" (ngSubmit)="salvarUsuario()" #form="ngForm" novalidate>
+      <form class="card-tarefas" (ngSubmit)="salvarUsuario()" #formUser="ngForm">
         <h4 class="text-center mb-3">Cadastro</h4>
 
         <div class="mb-2">
           <input class="form-control" placeholder="Nome" [(ngModel)]="usuario.nome" name="n" required>
-          <div *ngIf="erroNome" class="invalid-feedback d-block">Nome obrigatório</div>
+          <div *ngIf="erroNome" class="text-danger small d-block">Nome obrigatório</div>
         </div>
 
         <div class="mb-2">
           <input class="form-control" placeholder="Sobrenome" [(ngModel)]="usuario.sobrenome" name="sn" required>
-          <div *ngIf="erroSobrenome" class="invalid-feedback d-block">Sobrenome obrigatório</div>
+          <div *ngIf="erroSobrenome" class="text-danger small d-block">Sobrenome obrigatório</div>
         </div>
 
         <div class="mb-2">
           <input class="form-control" type="number" placeholder="Idade" [(ngModel)]="usuario.idade" name="i" required>
-          <div *ngIf="erroIdade" class="invalid-feedback d-block">Idade inválida</div>
+          <div *ngIf="erroIdade" class="text-danger small d-block">Idade inválida</div>
         </div>
 
         <div class="mb-2">
           <input class="form-control" type="email" placeholder="Email" [(ngModel)]="usuario.email" name="email"
             required>
-          <div *ngIf="erroEmail" class="invalid-feedback d-block">Email inválido</div>
-          <div *ngIf="erroEmailExistente" class="alert alert-warning mt-1 p-1">Email já cadastrado</div>
+          <div *ngIf="erroEmail" class="text-danger small d-block">Email inválido</div>
+          <div *ngIf="erroEmailExistente" class="alert alert-warning mt-1 p-1 small">Email já cadastrado</div>
         </div>
 
         <div class="mb-3">
           <input class="form-control" type="password" placeholder="Senha (min 5)" [(ngModel)]="usuario.senha"
             name="senha" required>
-          <div *ngIf="erroSenha" class="invalid-feedback d-block">Senha inválida</div>
+          <div *ngIf="erroSenha" class="text-danger small d-block">Senha inválida (mínimo 5 chars)</div>
         </div>
 
         <button class="btn btn-primary w-100">Salvar</button>
       </form>
     </section>
-
 
     <section *ngIf="aba==='config'" class="centro">
       <div class="card-tarefas text-center">
@@ -127,11 +133,40 @@
         <hr>
         <button class="btn btn-secondary w-100 mb-2" (click)="alternarTema()">Tema:
           {{temaClaro?'Claro':'Escuro'}}</button>
-        <button class="btn btn-info w-100 mb-2" (click)="mudarAba('categorias')">Gerenciar Categorias</button>
         <button class="btn btn-danger w-100" (click)="sair()">Sair</button>
       </div>
     </section>
 
+    <section *ngIf="aba==='ajuda'" class="centro">
+      <div class="card-tarefas w-100 p-0" style="max-width: 900px;">
+
+        <h4 class="text-center p-3 m-0" [class.border-bottom]="!temaClaro" [class.border-bottom-light]="temaClaro">
+          Guia de Uso
+        </h4>
+
+        <div class="tutorial-list">
+          <div *ngFor="let topico of duvidas" class="tutorial-item">
+
+            <button
+              class="btn-tutorial-link w-100 text-start py-3 px-4 d-flex justify-content-between align-items-center"
+              [class.active]="topico.id === topicoAjudaAtivo" (click)="mudarTopicoAjuda(topico.id)">
+              <span class="fw-bold"><i class="bi bi-question-circle me-2"></i> {{topico.pergunta}}</span>
+              <i class="bi" [ngClass]="{
+                  'bi-chevron-down': topico.id !== topicoAjudaAtivo,
+                  'bi-chevron-up': topico.id === topicoAjudaAtivo
+                }">
+              </i>
+            </button>
+
+            <div class="tutorial-content px-4 pb-3" [class.open]="topico.id === topicoAjudaAtivo"
+              [innerHTML]="topico.conteudo">
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
     <section *ngIf="aba==='cadastrar'" class="centro">
       <form (ngSubmit)="modoEdicao ? solicitarConfirmacaoEdicao(form) : adicionarTarefa(form)" #form="ngForm"
         class="card-tarefas">
@@ -176,12 +211,10 @@
           Cancelar Edição
         </button>
 
-        <div *ngIf="alertTarefaSalva" class="alert alert-success mt-2" role="alert">
-          Tarefa salva com sucesso!
+        <div *ngIf="alertTarefaSalva" class="alert alert-success mt-2 p-2 text-center" role="alert">
+          Tarefa salva!
         </div>
-
       </form>
-
     </section>
 
     <section *ngIf="aba==='categorias'" class="centro">
@@ -189,43 +222,121 @@
         <h4 class="text-center mb-3">Gerenciar Categorias</h4>
 
         <div class="mb-3">
-          <label>Nome da Categoria *</label>
-          <input class="form-control mb-2" placeholder="Ex: Trabalho, Pessoal..." [(ngModel)]="novaCategoria.nome" name="nomeCat">
-          <div *ngIf="erroNomeCategoria" class="text-danger small">Nome obrigatório</div>
+          <h5 class="mb-3 text-center">
+            {{ modoEdicaoCategoria ? 'Editar Categoria' : 'Nova Categoria' }}
+          </h5>
 
-          <label>Cor</label>
-          <input type="color" class="form-control form-control-color mb-2" [(ngModel)]="novaCategoria.cor" name="corCat">
+          <label>Nome da Categoria</label>
+          <input class="form-control mb-2" placeholder="Ex: Trabalho..." [(ngModel)]="novaCategoria.nome"
+            name="nomeCat">
+          <div *ngIf="erroNomeCategoria" class="text-danger small">Digite um nome</div>
 
-          <button class="btn btn-primary w-100" (click)="adicionarCategoria()">Adicionar Categoria</button>
+          <label>Cor da Etiqueta</label>
+          <input type="color" class="form-control form-control-color mb-2 w-100" [(ngModel)]="novaCategoria.cor"
+            name="corCat" title="Escolha uma cor">
+
+          <button class="btn btn-primary w-100 mt-2" (click)="adicionarCategoria()">
+            {{ modoEdicaoCategoria ? 'Salvar Alterações' : 'Adicionar' }}
+          </button>
+
+          <button *ngIf="modoEdicaoCategoria" class="btn btn-secondary w-100 mt-2" (click)="cancelarEdicaoCategoria()">
+            Cancelar Edição
+          </button>
         </div>
 
         <hr>
 
+        <h5 class="text-center mb-3">Categorias Atuais</h5>
         <div *ngIf="categorias.length === 0" class="text-center text-muted py-3">
-          Nenhuma categoria cadastrada
+          Nenhuma categoria
         </div>
 
-        <div *ngFor="let categoria of categorias" class="categoria-item mb-2 p-3 rounded d-flex justify-content-between align-items-center"
-          [style.backgroundColor]="categoria.cor + '20'" [style.borderLeft]="'4px solid ' + categoria.cor">
-          <div class="d-flex align-items-center gap-2">
-            <div class="categoria-cor" [style.backgroundColor]="categoria.cor"></div>
-            <span class="fw-bold">{{categoria.nome}}</span>
+        <div class="categoria-lista" style="max-height: 300px; overflow-y: auto;">
+          <div *ngFor="let categoria of categorias"
+            class="categoria-item mb-2 p-2 rounded d-flex justify-content-between align-items-center"
+            [style.borderLeft]="'4px solid ' + categoria.cor">
+            <div class="d-flex align-items-center gap-2">
+              <div class="categoria-cor" [style.backgroundColor]="categoria.cor"></div>
+              <span class="fw-bold">{{categoria.nome}}</span>
+            </div>
+
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary btn-sm border-0" (click)="iniciarEdicaoCategoria(categoria)"
+                [disabled]="modoEdicaoCategoria">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-outline-danger btn-sm border-0" (click)="excluirCategoria(categoria)"
+                [disabled]="modoEdicaoCategoria">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </div>
-          <button class="btn btn-danger btn-sm" (click)="excluirCategoria(categoria)">
-            <i class="bi bi-trash"></i>
-          </button>
         </div>
 
-        <div *ngIf="categoriaSendoUsada" class="alert alert-warning mt-3" role="alert">
-          <i class="bi bi-exclamation-triangle me-2"></i>
-          {{erroExclusaoCategoria}}
+        <div *ngIf="categoriaSendoUsada" class="alert alert-warning mt-3 small" role="alert">
+          <i class="bi bi-exclamation-triangle me-1"></i> {{erroExclusaoCategoria}}
         </div>
 
-        <button class="btn btn-secondary w-100 mt-3" (click)="mudarAba('config')">Voltar</button>
       </div>
     </section>
 
-    <section *ngIf="aba!=='login' && aba!=='cadastro' && aba!=='config' && aba!=='cadastrar' && aba!=='categorias'" class="listagem-container">
+    <section
+      *ngIf="aba!=='login' && aba!=='cadastro' && aba!=='config' && aba!=='cadastrar' && aba!=='categorias' && aba!=='ajuda'"
+      class="listagem-container">
+
+      <div class="card p-3 mb-4" [class.bg-dark]="!temaClaro" [class.border-0]="!temaClaro">
+
+        <h5 class="mb-3"><i class="bi bi-funnel me-2"></i> Filtros e Pesquisa</h5>
+
+        <div class="mb-3 search-box">
+          <label class="form-label fw-bold small mb-1">Pesquisar Título/Descrição</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Digite para buscar..." [(ngModel)]="termoPesquisa"
+              (ngModelChange)="tarefasFiltradas()" name="search">
+            <button *ngIf="termoPesquisa" class="btn btn-outline-secondary" type="button"
+              (click)="termoPesquisa = ''; tarefasFiltradas()">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="row mb-3 gx-2">
+
+          <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <label class="form-label fw-bold small mb-1">Data de Vencimento</label>
+            <input type="date" class="form-control" [(ngModel)]="filtroData" (ngModelChange)="tarefasFiltradas()"
+              name="filtroData" title="Filtrar por data de vencimento">
+          </div>
+
+          <div class="col-6 col-md-4 mb-2 mb-md-0">
+            <label class="form-label fw-bold small mb-1">Prioridade</label>
+            <select class="form-select" [(ngModel)]="filtroPrioridade" (ngModelChange)="tarefasFiltradas()"
+              name="filtroPrioridade">
+              <option value="">Todas as Prioridades</option>
+              <option value="baixa">Baixa</option>
+              <option value="media">Média</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md-4">
+            <label class="form-label fw-bold small mb-1">Categoria</label>
+            <select class="form-select" [(ngModel)]="filtroCategoria" (ngModelChange)="tarefasFiltradas()"
+              name="filtroCategoria">
+              <option value="">Todas as Categorias</option>
+              <option *ngFor="let cat of categorias" [value]="cat.nome">{{cat.nome}}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-2">
+          <button class="btn btn-sm btn-outline-secondary" (click)="limparTodosFiltros()">
+            <i class="bi bi-x-circle me-1"></i> Limpar Filtros
+          </button>
+        </div>
+
+      </div>
       <table class="table table-hover tabela-responsiva" [class.table-dark]="!temaClaro">
         <thead>
           <tr>
@@ -241,7 +352,7 @@
         <tbody>
           <tr *ngFor="let tarefa of tarefasFiltradas(); let i=index">
             <td data-label="Título" [class.ok]="tarefa.concluida" class="fw-bold-mobile">{{tarefa.titulo}}</td>
-            
+
             <td data-label="Descrição" [class.ok]="tarefa.concluida" class="text-wrap-mobile">
               {{tarefa.descricao || '-'}}
             </td>
@@ -257,38 +368,40 @@
             </td>
 
             <td data-label="Categoria">
-              <span *ngIf="tarefa.categoria" class="badge" [style.backgroundColor]="obterCorCategoria(tarefa.categoria)">
+              <span *ngIf="tarefa.categoria" class="badge" [style.backgroundColor]="obterCorCategoria(tarefa.categoria)"
+                [style.color]="obtendoCorTextoConstraste(obterCorCategoria(tarefa.categoria))">
                 {{tarefa.categoria}}
               </span>
-              <span *ngIf="!tarefa.categoria" class="text-muted">-</span>
+              <span *ngIf="!tarefa.categoria" class="text-muted small">-</span>
             </td>
-            
-            <td data-label="Data">{{tarefa.data | date:'dd/MM/yyyy'}}</td>
-            
+
+            <td data-label="Data">{{tarefa.data | date:'dd/MM/yyyy' : '+0000'}}</td>
+
             <td data-label="Status">
               <div class="form-check form-switch p-0 m-0 d-flex align-items-center gap-2">
-                 <input class="form-check-input m-0" type="checkbox" [checked]="tarefa.concluida" (change)="alternarStatus(i)">
-                 <span>{{ tarefa.concluida ? 'Concluída' : 'Pendente' }}</span>
+                <input class="form-check-input m-0" type="checkbox" [checked]="tarefa.concluida"
+                  (change)="alternarStatus(tarefa)">
+                <span>{{ tarefa.concluida ? 'Concluída' : 'Pendente' }}</span>
               </div>
             </td>
 
             <td data-label="Ações">
               <div class="d-flex gap-2 justify-content-end w-100 mobile-actions">
                 <button class="btn btn-warning btn-sm" (click)="editarTarefa(tarefa)">
-                   <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Editar</span>
+                  <i class="bi bi-pencil"></i>
                 </button>
 
                 <button class="btn btn-sm btn-danger" (click)="confirmarExclusao(tarefa)">
-                   <i class="bi bi-trash"></i> <span class="d-none d-md-inline">Excluir</span>
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             </td>
           </tr>
 
           <tr *ngIf="tarefasFiltradas().length===0">
-            <td colspan="7" class="text-center py-4 text-muted">
-                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                Nenhuma tarefa encontrada
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-inbox fs-1 d-block mb-2 opacity-50"></i>
+              Nenhuma tarefa encontrada nesta visualização.
             </td>
           </tr>
         </tbody>
@@ -315,7 +428,7 @@
       </div>
     </div>
 
-    <div *ngIf="categoriaSelecionadaParaExcluir && !categoriaSendoUsada" class="modal-backdrop">
+    <div *ngIf="categoriaSelecionadaParaExcluir" class="modal-backdrop">
       <div class="modal-card">
         <p>Excluir categoria <b>{{categoriaSelecionadaParaExcluir.nome}}</b>?</p>
         <div class="d-flex gap-2">

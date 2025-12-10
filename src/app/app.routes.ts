@@ -1,3 +1,1 @@
-import { Routes } from '@angular/router';
-
-export const routes: Routes = [];
+// Arquivo restaurado para estado original (sem rotas extras)
