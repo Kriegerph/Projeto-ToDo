@@ -3,7 +3,8 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
 }
 
 /* LAYOUT PADRÃO (DESKTOP) */
@@ -21,7 +22,7 @@
   background: #1b1f27;
   color: white;
   z-index: 20;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* SIDEBAR */
@@ -33,7 +34,7 @@
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
-  border-right: 1px solid rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 15;
 }
 
@@ -87,7 +88,7 @@
   background: #1f2937;
   color: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* TABELA */
@@ -99,7 +100,10 @@
   width: 100%;
   vertical-align: middle;
 }
-.ok { text-decoration: line-through; opacity: 0.5; }
+.ok {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
 
 /* MODAL */
 .modal-backdrop {
@@ -120,14 +124,14 @@
   border-radius: 12px;
   text-align: center;
   color: #000;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
 }
 
 /* OVERLAY DO SIDEBAR (Mobile) */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 14; /* Abaixo do Navbar (20) e Sidebar (15) */
   opacity: 0;
   visibility: hidden;
@@ -154,7 +158,7 @@
     left: -260px;
     width: 260px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.mobile-open {
@@ -166,9 +170,9 @@
   }
 
   /* CARD VIEW MOBILE */
-  .tabela-responsiva, 
-  .tabela-responsiva tbody, 
-  .tabela-responsiva tr, 
+  .tabela-responsiva,
+  .tabela-responsiva tbody,
+  .tabela-responsiva tr,
   .tabela-responsiva td {
     display: block;
     width: 100%;
@@ -184,7 +188,7 @@
     border-radius: 10px;
     padding: 15px;
     border: 1px solid #374151;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .tabela-responsiva td {
@@ -217,7 +221,9 @@
     text-align: left !important;
     display: block !important;
   }
-  .fw-bold-mobile::before { display: none; }
+  .fw-bold-mobile::before {
+    display: none;
+  }
 
   .text-wrap-mobile {
     text-align: left !important;
@@ -225,7 +231,10 @@
     font-size: 0.9rem;
     color: #d1d5db;
   }
-  .text-wrap-mobile::before { display: block; margin-bottom: 5px; }
+  .text-wrap-mobile::before {
+    display: block;
+    margin-bottom: 5px;
+  }
 
   .mobile-actions {
     justify-content: stretch !important;
@@ -239,16 +248,42 @@
 /* =================== */
 /* TEMA CLARO        */
 /* =================== */
-.light .navbar-top { background: #fff; color: #333; border-bottom: 1px solid #eee; }
-.light .navbar-top .btn-outline-light { color: #333; border-color: #ddd; }
-.light .sidebar { background: #f8f9fa; border-right: 1px solid #e9ecef; color: #212529; }
-.light .sidebar button { color: #495057; }
-.light .sidebar button:hover, .light .sidebar button.active { background: #e9ecef; color: #000; }
-.light .conteudo { background: #f0f2f5; color: #212529; }
-.light .card-tarefas { background: #fff; color: #212529; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.light .navbar-top {
+  background: #fff;
+  color: #333;
+  border-bottom: 1px solid #eee;
+}
+.light .navbar-top .btn-outline-light {
+  color: #333;
+  border-color: #ddd;
+}
+.light .sidebar {
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  color: #212529;
+}
+.light .sidebar button {
+  color: #495057;
+}
+.light .sidebar button:hover,
+.light .sidebar button.active {
+  background: #e9ecef;
+  color: #000;
+}
+.light .conteudo {
+  background: #f0f2f5;
+  color: #212529;
+}
+.light .card-tarefas {
+  background: #fff;
+  color: #212529;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
 
 .light .sidebar .sidebar-footer,
-.light .sidebar .sidebar-footer b { color: #212529; }
+.light .sidebar .sidebar-footer b {
+  color: #212529;
+}
 
 /* Tabela Light Mobile */
 .light .tabela-responsiva tr {
@@ -258,13 +293,24 @@
 .light .tabela-responsiva td {
   border-bottom: 1px solid #eee;
 }
-.light .fw-bold-mobile { color: #000; }
-.light .text-wrap-mobile { color: #4b5563; }
-.light .tabela-responsiva td::before { color: #6c757d; }
+.light .fw-bold-mobile {
+  color: #000;
+}
+.light .text-wrap-mobile {
+  color: #4b5563;
+}
+.light .tabela-responsiva td::before {
+  color: #6c757d;
+}
 
 /* Tabela Desktop Light */
-.light .table-hover tbody tr:hover { background-color: #e9ecef; }
-.light .table { color: #212529; background-color: transparent; }
+.light .table-hover tbody tr:hover {
+  background-color: #e9ecef;
+}
+.light .table {
+  color: #212529;
+  background-color: transparent;
+}
 
 /* CATEGORIAS */
 .categoria-item {
@@ -284,7 +330,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 2px solid rgba(0,0,0,0.1);
+  border: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .badge {
@@ -295,31 +341,31 @@
 /* Ajustes para MODO ESCURO: garantir legibilidade de textos 'muted' e legendas */
 
 .layout:not(.light) .text-muted {
-  color: rgba(255,255,255,0.78) !important;
+  color: rgba(255, 255, 255, 0.78) !important;
 }
 .layout:not(.light) .small {
-  color: rgba(255,255,255,0.88) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
 }
 /* CORREÇÃO APLICADA: Garantir que o texto de ERRO seja sempre vermelho */
 .layout:not(.light) .text-danger,
 .layout:not(.light) .text-danger .small {
-  color: #dc3545 !important; 
+  color: #dc3545 !important;
 }
 
 /* Correção forçada para o texto do ALERTA AMARELO (alert-warning) no Tema Escuro */
 .layout:not(.light) .alert-warning {
-    /* Força o fundo original do Bootstrap, se ele tiver sido alterado */
-    background-color: #ffc107; 
-    border-color: #ffc107;
-    
-    /* FORÇA A COR DO TEXTO PARA PRETO, garantindo alto contraste */
-    color: #000 !important;
+  /* Força o fundo original do Bootstrap, se ele tiver sido alterado */
+  background-color: #ffc107;
+  border-color: #ffc107;
+
+  /* FORÇA A COR DO TEXTO PARA PRETO, garantindo alto contraste */
+  color: #000 !important;
 }
 
 /* Garante que o ícone e o texto small (se aplicável) também sejam pretos */
 .layout:not(.light) .alert-warning i,
 .layout:not(.light) .alert-warning .small {
-    color: #000 !important;
+  color: #000 !important;
 }
 
 .layout:not(.light) .categoria-item {
@@ -365,30 +411,30 @@
 
 .search-box .input-group-text,
 .search-box .form-control {
-    border-color: #374151;
-    background: #1f2937;
-    color: white;
+  border-color: #374151;
+  background: #1f2937;
+  color: white;
 }
 
 /* Modo Claro */
 .light .search-box .input-group-text,
 .light .search-box .form-control {
-    border-color: #ced4da;
-    background: #fff;
-    color: #212529;
+  border-color: #ced4da;
+  background: #fff;
+  color: #212529;
 }
 
 /* Ajuste no botão de limpar (x) */
 .search-box .btn-outline-secondary {
-    color: #9ca3af;
-    border-color: #374151;
-    background-color: #1f2937;
+  color: #9ca3af;
+  border-color: #374151;
+  background-color: #1f2937;
 }
 
 .light .search-box .btn-outline-secondary {
-    color: #6c757d;
-    border-color: #ced4da;
-    background-color: #fff;
+  color: #6c757d;
+  border-color: #ced4da;
+  background-color: #fff;
 }
 
 /* =================== */
@@ -476,5 +522,95 @@
 
 /* Título Separador (no mobile, para melhorar o visual) */
 .border-bottom-light {
-    border-bottom: 1px solid #dee2e6 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Garante que o rodapé fique embaixo da barra lateral, se a barra for fixa/total */
+.sidebar-footer {
+  padding: 15px;
+  text-align: center;
+  border-top: 1px solid rgba(0, 0, 0, 0.1); /* Linha divisória */
+
+  /* Se a sua barra lateral for um container fixo de altura total: */
+  /* position: absolute;
+  bottom: 0;
+  width: 100%; */
+}
+
+.sidebar-footer p {
+  font-size: 0.75rem; /* Fonte pequena */
+  color: var(--cor-texto-secundario, #6c757d); /* Cor de texto secundária/cinza */
+  margin: 0;
+}
+
+/* No seu tarefas.component.css */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+
+.modal-custom {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-content-custom {
+  background-color: rgb(32, 32, 32); /* Usa a cor do seu card */
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.lista-excluidas {
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: rgb(32, 32, 32);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Container que permite o posicionamento absoluto */
+.password-input-container {
+  position: relative;
+  display: flex; /* Garante que o container se comporte bem em layouts flexíveis */
+}
+
+/* O botão que contém o ícone */
+.toggle-password {
+  position: absolute;
+  top: 50%; /* Centraliza verticalmente */
+  right: 10px; /* Distância da borda direita */
+  transform: translateY(-50%); /* Ajuste fino para o centro */
+
+  /* Estilos para parecer um ícone flutuante */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #6c757d; /* Cor cinza padrão do Bootstrap */
+  z-index: 10; /* Garante que o botão fique acima do input */
+  font-size: 1.2rem; /* Tamanho do ícone */
+}
+
+/* Garante que o botão não mude de cor ao passar o mouse ou clicar */
+.toggle-password:focus,
+.toggle-password:active {
+  box-shadow: none;
+  outline: none;
+}
+
+/* Opcional: Adiciona um padding extra ao input para o texto não ficar por baixo do ícone */
+.password-input-container input.form-control {
+  padding-right: 40px;
 }
