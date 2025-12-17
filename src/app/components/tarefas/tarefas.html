@@ -38,11 +38,11 @@
         <i class="bi bi-plus-circle me-2" aria-hidden="true"></i> {{ modoEdicao ? 'Editando' : 'Nova Tarefa' }}
       </button>
 
-      <button (click)="mudarAba('todas')" [class.active]="aba==='todas'">
+      <button (click)="mudarAba('todas')" [class.active]="aba==='todas' || aba==='concluidas' || aba==='abertas'">
         <i class="bi bi-list-task me-2" aria-hidden="true"></i> Tarefas
       </button>
 
-      <div class="sub-menu" *ngIf="aba==='todas' || aba==='concluidas' || aba==='abertas'">
+      <div class="sub-menu" [class.show]="aba==='todas' || aba==='concluidas' || aba==='abertas'">
         <button (click)="mudarAba('concluidas')" [class.active]="aba==='concluidas'">
           <i class="bi bi-check2-circle me-2" aria-hidden="true"></i> Concluídas
         </button>
@@ -185,240 +185,248 @@
         <small *ngIf="msgErroReautenticacao" class="text-danger d-block mb-3" role="alert">{{ msgErroReautenticacao
           }}</small>
 
-        <button class="btn btn-primary w-100 mb-2" type="button" (click)="toggleEdicaoPerfil()"
-          [attr.aria-expanded]="mostrarEdicaoPerfil" aria-controls="collapsePerfil">
-          Gerenciamento do Perfil
-        </button>
+        <div *ngIf="usuarioLogado">
+          <button class="btn btn-primary w-100 mb-2" type="button" (click)="toggleEdicaoPerfil()"
+            [attr.aria-expanded]="mostrarEdicaoPerfil" aria-controls="collapsePerfil">
+            Gerenciamento do Perfil
+          </button>
 
-        <div [ngClass]="{'collapse': !mostrarEdicaoPerfil, 'show': mostrarEdicaoPerfil}" id="collapsePerfil">
-          <hr class="mt-2 mb-3">
+          <div [ngClass]="{'collapse': !mostrarEdicaoPerfil, 'show': mostrarEdicaoPerfil}" id="collapsePerfil">
+            <hr class="mt-2 mb-3">
 
-          <form (ngSubmit)="salvarAlteracoesPerfil()">
-            <div class="form-group mb-3 text-start">
-              <label for="perfilNome" class="form-label">Nome:</label>
-              <input id="perfilNome" class="form-control" [(ngModel)]="perfil.nome" name="perfilNome" required
-                autocomplete="given-name">
+            <form (ngSubmit)="salvarAlteracoesPerfil()">
+              <div class="form-group mb-3 text-start">
+                <label for="perfilNome" class="form-label">Nome:</label>
+                <input id="perfilNome" class="form-control" [(ngModel)]="perfil.nome" name="perfilNome" required
+                  autocomplete="given-name">
 
-              <small *ngIf="erroNomeObrigatorio" class="text-danger" role="alert">
-                O campo Nome não pode ficar em branco.
-              </small>
+                <small *ngIf="erroNomeObrigatorio" class="text-danger" role="alert">
+                  O campo Nome não pode ficar em branco.
+                </small>
 
-            </div>
+              </div>
 
-            <div class="form-group mb-3 text-start">
-              <label for="perfilSobrenome" class="form-label">Sobrenome:</label>
-              <input id="perfilSobrenome" class="form-control" [(ngModel)]="perfil.sobrenome" name="perfilSobrenome"
-                autocomplete="family-name">
+              <div class="form-group mb-3 text-start">
+                <label for="perfilSobrenome" class="form-label">Sobrenome:</label>
+                <input id="perfilSobrenome" class="form-control" [(ngModel)]="perfil.sobrenome" name="perfilSobrenome"
+                  autocomplete="family-name">
 
-              <small *ngIf="erroSobrenomeObrigatorio" class="text-danger" role="alert">
-                O campo Sobrenome não pode ficar em branco.
-              </small>
+                <small *ngIf="erroSobrenomeObrigatorio" class="text-danger" role="alert">
+                  O campo Sobrenome não pode ficar em branco.
+                </small>
 
-            </div>
+              </div>
 
-            <button type="submit" class="btn btn-primary w-100 mb-1">Salvar Perfil</button>
+              <button type="submit" class="btn btn-primary w-100 mb-1">Salvar Perfil</button>
 
-            <hr class="mt-3 mb-3">
+              <hr class="mt-3 mb-3">
 
-          </form>
+            </form>
 
+          </div>
         </div>
 
-        <button class="btn btn-secondary w-100 mb-2" type="button" (click)="toggleAlteracaoLogin()"
-          [attr.aria-expanded]="mostrarAlteracaoLogin" aria-controls="collapseLogin">
-          Alterar Login (E-mail e Senha)
-        </button>
+        <div *ngIf="usuarioLogado">
+          <button class="btn btn-secondary w-100 mb-2" type="button" (click)="toggleAlteracaoLogin()"
+            [attr.aria-expanded]="mostrarAlteracaoLogin" aria-controls="collapseLogin">
+            Alterar Login (E-mail e Senha)
+          </button>
 
-        <div [ngClass]="{'collapse': !mostrarAlteracaoLogin, 'show': mostrarAlteracaoLogin}" id="collapseLogin">
-          <hr class="mt-2 mb-3">
+          <div [ngClass]="{'collapse': !mostrarAlteracaoLogin, 'show': mostrarAlteracaoLogin}" id="collapseLogin">
+            <hr class="mt-2 mb-3">
 
-          <form (ngSubmit)="alterarLogin()">
-            <small *ngIf="msgSucessoLogin" class="text-success d-block mb-3" role="status">{{ msgSucessoLogin
-              }}</small>
+            <form (ngSubmit)="alterarLogin()">
+              <small *ngIf="msgSucessoLogin" class="text-success d-block mb-3" role="status">{{ msgSucessoLogin
+                }}</small>
 
-            <div class="form-group mb-3 text-start">
-              <label for="novoEmail" class="form-label">Novo E-mail:</label>
-              <input id="novoEmail" class="form-control" [(ngModel)]="novoEmail" name="novoEmail" type="email"
-                placeholder="{{ perfil.email }}" autocomplete="email">
+              <div class="form-group mb-3 text-start">
+                <label for="novoEmail" class="form-label">Novo E-mail:</label>
+                <input id="novoEmail" class="form-control" [(ngModel)]="novoEmail" name="novoEmail" type="email"
+                  placeholder="{{ perfil.email }}" autocomplete="email">
 
-              <small *ngIf="erroLoginEmailInvalido" class="text-danger" role="alert">
-                O novo e-mail deve ser válido (conter @).
-              </small>
-            </div>
-
-            <hr>
-
-            <div class="form-group mb-3 text-start">
-              <label for="novaSenha" class="form-label">Nova Senha:</label>
-              <div class="password-input-container mb-3">
-                <input id="novaSenha" class="form-control" [(ngModel)]="novaSenha" name="novaSenha"
-                  [type]="mostrarSenhaAlterar ? 'text' : 'password'" placeholder="Mínimo 6 caracteres"
-                  autocomplete="new-password">
-                <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('alterar')"
-                  [attr.aria-label]="mostrarSenhaAlterar ? 'Ocultar Senha' : 'Mostrar Senha'"
-                  [attr.aria-expanded]="mostrarSenhaAlterar" title="Mostrar/Ocultar Senha">
-                  <i *ngIf="!mostrarSenhaAlterar" class="bi bi-eye-slash" aria-hidden="true"></i>
-                  <i *ngIf="mostrarSenhaAlterar" class="bi bi-eye" aria-hidden="true"></i>
-                </button>
+                <small *ngIf="erroLoginEmailInvalido" class="text-danger" role="alert">
+                  O novo e-mail deve ser válido (conter @).
+                </small>
               </div>
 
-              <small *ngIf="erroLoginSenhaPequena" class="text-danger" role="alert">
-                A senha deve ter no mínimo 6 caracteres.
-              </small>
-              <small *ngIf="erroLoginSenhaIgualAtual" class="text-danger" role="alert">
-                A nova senha não pode ser igual à senha atual.
-              </small>
-            </div>
+              <hr>
 
-            <div class="form-group mb-3 text-start">
-              <label for="confirmaNovaSenha" class="form-label">Confirme a Nova Senha:</label>
-              <div class="password-input-container mb-3">
-                <input id="confirmaNovaSenha" class="form-control" [(ngModel)]="confirmaNovaSenha"
-                  name="confirmaNovaSenha" [type]="mostrarSenhaConfirmarAlterar ? 'text' : 'password'"
-                  placeholder="As senhas devem ser idênticas" autocomplete="new-password">
-                <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('confirmarAlterar')"
-                  [attr.aria-label]="mostrarSenhaConfirmarAlterar ? 'Ocultar Senha' : 'Mostrar Senha'"
-                  [attr.aria-expanded]="mostrarSenhaConfirmarAlterar" title="Mostrar/Ocultar Senha">
-                  <i *ngIf="!mostrarSenhaConfirmarAlterar" class="bi bi-eye-slash" aria-hidden="true"></i>
-                  <i *ngIf="mostrarSenhaConfirmarAlterar" class="bi bi-eye" aria-hidden="true"></i>
-                </button>
+              <div class="form-group mb-3 text-start">
+                <label for="novaSenha" class="form-label">Nova Senha:</label>
+                <div class="password-input-container mb-3">
+                  <input id="novaSenha" class="form-control" [(ngModel)]="novaSenha" name="novaSenha"
+                    [type]="mostrarSenhaAlterar ? 'text' : 'password'" placeholder="Mínimo 6 caracteres"
+                    autocomplete="new-password">
+                  <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('alterar')"
+                    [attr.aria-label]="mostrarSenhaAlterar ? 'Ocultar Senha' : 'Mostrar Senha'"
+                    [attr.aria-expanded]="mostrarSenhaAlterar" title="Mostrar/Ocultar Senha">
+                    <i *ngIf="!mostrarSenhaAlterar" class="bi bi-eye-slash" aria-hidden="true"></i>
+                    <i *ngIf="mostrarSenhaAlterar" class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <small *ngIf="erroLoginSenhaPequena" class="text-danger" role="alert">
+                  A senha deve ter no mínimo 6 caracteres.
+                </small>
+                <small *ngIf="erroLoginSenhaIgualAtual" class="text-danger" role="alert">
+                  A nova senha não pode ser igual à senha atual.
+                </small>
               </div>
 
-              <small *ngIf="erroLoginSenhasDiferentes" class="text-danger" role="alert">
-                As senhas não conferem.
-              </small>
-            </div>
+              <div class="form-group mb-3 text-start">
+                <label for="confirmaNovaSenha" class="form-label">Confirme a Nova Senha:</label>
+                <div class="password-input-container mb-3">
+                  <input id="confirmaNovaSenha" class="form-control" [(ngModel)]="confirmaNovaSenha"
+                    name="confirmaNovaSenha" [type]="mostrarSenhaConfirmarAlterar ? 'text' : 'password'"
+                    placeholder="As senhas devem ser idênticas" autocomplete="new-password">
+                  <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('confirmarAlterar')"
+                    [attr.aria-label]="mostrarSenhaConfirmarAlterar ? 'Ocultar Senha' : 'Mostrar Senha'"
+                    [attr.aria-expanded]="mostrarSenhaConfirmarAlterar" title="Mostrar/Ocultar Senha">
+                    <i *ngIf="!mostrarSenhaConfirmarAlterar" class="bi bi-eye-slash" aria-hidden="true"></i>
+                    <i *ngIf="mostrarSenhaConfirmarAlterar" class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
 
-            <hr class="mt-3 mb-3">
-
-            <div class="form-group mb-3 text-start">
-              <label for="senhaAtual" class="form-label">Confirme sua <strong>Senha Atual</strong>:</label>
-              <div class="password-input-container mb-3">
-                <input id="senhaAtual" class="form-control" [(ngModel)]="perfil.senhaAtual" name="senhaAtual"
-                  [type]="mostrarSenhaConfirmacao ? 'text' : 'password'" required placeholder="Senha atual"
-                  autocomplete="current-password">
-                <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('confirmacao')"
-                  [attr.aria-label]="mostrarSenhaConfirmacao ? 'Ocultar Senha' : 'Mostrar Senha'"
-                  [attr.aria-expanded]="mostrarSenhaConfirmacao" title="Mostrar/Ocultar Senha">
-                  <i *ngIf="!mostrarSenhaConfirmacao" class="bi bi-eye-slash" aria-hidden="true"></i>
-                  <i *ngIf="mostrarSenhaConfirmacao" class="bi bi-eye" aria-hidden="true"></i>
-                </button>
+                <small *ngIf="erroLoginSenhasDiferentes" class="text-danger" role="alert">
+                  As senhas não conferem.
+                </small>
               </div>
 
-              <small *ngIf="erroLoginSenhaAtualIncorreta" class="text-danger" role="alert">
-                {{ msgErroReautenticacao }}
-              </small>
-            </div>
+              <hr class="mt-3 mb-3">
 
-            <button type="submit" class="btn btn-warning w-100">Atualizar Login</button>
-          </form>
+              <div class="form-group mb-3 text-start">
+                <label for="senhaAtual" class="form-label">Confirme sua <strong>Senha Atual</strong>:</label>
+                <div class="password-input-container mb-3">
+                  <input id="senhaAtual" class="form-control" [(ngModel)]="perfil.senhaAtual" name="senhaAtual"
+                    [type]="mostrarSenhaConfirmacao ? 'text' : 'password'" required placeholder="Senha atual"
+                    autocomplete="current-password">
+                  <button class="toggle-password" type="button" (click)="alternarVisibilidadeSenha('confirmacao')"
+                    [attr.aria-label]="mostrarSenhaConfirmacao ? 'Ocultar Senha' : 'Mostrar Senha'"
+                    [attr.aria-expanded]="mostrarSenhaConfirmacao" title="Mostrar/Ocultar Senha">
+                    <i *ngIf="!mostrarSenhaConfirmacao" class="bi bi-eye-slash" aria-hidden="true"></i>
+                    <i *ngIf="mostrarSenhaConfirmacao" class="bi bi-eye" aria-hidden="true"></i>
+                  </button>
+                </div>
 
+                <small *ngIf="erroLoginSenhaAtualIncorreta" class="text-danger" role="alert">
+                  {{ msgErroReautenticacao }}
+                </small>
+              </div>
+
+              <button type="submit" class="btn btn-warning w-100">Atualizar Login</button>
+            </form>
+
+          </div>
         </div>
 
         <hr class="mt-3 mb-3">
 
-        <button class="btn btn-secondary w-100 mb-2" (click)="abrirModalLimpeza()" aria-haspopup="dialog">Limpar Tarefas
+        <button class="btn btn-secondary w-100 mb-2" (click)="abrirModalLimpeza()" aria-haspopup="dialog"
+          *ngIf="usuarioLogado">Limpar Tarefas
           Concluídas</button>
-
-        <div class="modal-backdrop" *ngIf="mostrarModalLimpeza" aria-hidden="true"></div>
-        <div class="modal-custom" *ngIf="mostrarModalLimpeza" role="dialog" aria-modal="true"
-          aria-labelledby="limpezaTitulo">
-          <div class="modal-content-custom">
-
-            <ng-container *ngIf="alertaLimpezaVazia">
-              <h3 id="limpezaTitulo">⚠️ Atenção</h3>
-              <p>Não encontramos nenhuma tarefa concluída para apagar!</p>
-              <p class="text-muted small">Conclua algumas tarefas e tente novamente.</p>
-
-              <button class="btn btn-secondary mt-3" (click)="fecharModalLimpeza()">
-                Entendi
-              </button>
-            </ng-container>
-
-            <ng-container *ngIf="!alertaLimpezaVazia && limpezaContador === 0">
-              <h3 id="limpezaTitulo">Confirmação de Limpeza</h3>
-              <p>Tem certeza que deseja apagar <strong>TODAS</strong> as tarefas concluídas?</p>
-              <p class="text-danger">Esta ação é irreversível e os dados serão removidos permanentemente.</p>
-
-              <button class="btn btn-danger me-2" (click)="executarLimpeza()">
-                Sim, Apagar Agora
-              </button>
-              <button class="btn btn-secondary" (click)="fecharModalLimpeza()">
-                Cancelar
-              </button>
-            </ng-container>
-
-            <ng-container *ngIf="limpezaContador > 0">
-              <h3 id="limpezaTitulo">✅ Limpeza Concluída!</h3>
-              <p>{{ limpezaContador }} tarefa(s) concluída(s) foram apagadas com sucesso.</p>
-
-              <h5 class="mt-3">Tarefas Removidas:</h5>
-              <div class="lista-excluidas">
-                <ul class="list-unstyled" aria-label="Lista de tarefas excluídas">
-                  <li *ngFor="let tarefa of tarefasExcluidas">
-                    <small>🗑️ {{ tarefa.nome }}</small>
-                  </li>
-                </ul>
-              </div>
-
-              <button class="btn btn-primary mt-3" (click)="fecharModalLimpeza()">
-                Fechar
-              </button>
-            </ng-container>
-
-          </div>
-        </div>
 
         <button class="btn btn-secondary w-100 mb-2" (click)="alternarTema()">Tema: {{temaClaro ? 'Claro' :
           'Escuro'}}</button>
 
         <hr class="mt-3 mb-3">
 
-        <button class="btn btn-secondary w-100 mb-2" (click)="sair()">Sair</button>
+        <button class="btn btn-secondary w-100 mb-2" (click)="sair()" *ngIf="usuarioLogado">Sair</button>
 
-        <button class="btn btn-danger w-100" (click)="abrirModalExcluir()" aria-haspopup="dialog">Excluir Minha
+        <button class="btn btn-danger w-100" (click)="abrirModalExcluir()" aria-haspopup="dialog"
+          *ngIf="usuarioLogado">Excluir Minha
           Conta</button>
 
-        <div class="modal-backdrop" *ngIf="mostrarModalExcluirConta" aria-hidden="true"></div>
-        <div class="modal-custom" *ngIf="mostrarModalExcluirConta" role="dialog" aria-modal="true"
-          aria-labelledby="exclusaoTitulo">
-          <div class="modal-content-custom border border-danger">
-
-            <ng-container *ngIf="!contaExcluidaSucesso">
-              <h3 id="exclusaoTitulo" class="text-danger">Excluir Conta</h3>
-              <p>Esta ação é <b>permanente</b>. Todos os seus dados e tarefas serão apagados para sempre.</p>
-
-              <div class="mb-3 text-start">
-                <label for="senhaExcluirInput" class="form-label">Confirme sua senha para prosseguir:</label>
-                <input id="senhaExcluirInput" type="password" class="form-control" [(ngModel)]="senhaParaExcluir"
-                  autocomplete="current-password">
-                <small class="text-danger" *ngIf="erroExcluirConta" role="alert">{{ erroExcluirConta }}</small>
-              </div>
-
-              <div class="d-flex justify-content-center">
-                <button class="btn btn-danger me-2" (click)="confirmarExclusaoConta()" [disabled]="deletandoConta">
-                  {{ deletandoConta ? 'Excluindo...' : 'Excluir Conta' }}
-                </button>
-                <button class="btn btn-secondary" (click)="mostrarModalExcluirConta = false">
-                  Cancelar
-                </button>
-              </div>
-            </ng-container>
-
-            <ng-container *ngIf="contaExcluidaSucesso">
-              <h3 id="exclusaoTitulo" class="text-success">Conta Excluída</h3>
-              <p>Sua conta e todos os seus dados foram removidos com sucesso do nosso sistema.</p>
-              <p>Esperamos ver você de volta em breve!</p>
-
-              <button class="btn btn-primary mt-2" (click)="irParaLogin()">
-                Voltar para o Login
-              </button>
-            </ng-container>
-
-          </div>
-        </div>
       </div>
     </section>
+
+    <!-- MODAIS DAS CONFIGURAÇÕES (FORA DO CARD) -->
+    <div class="modal-backdrop-limpeza" *ngIf="mostrarModalLimpeza" aria-hidden="true"></div>
+    <div class="modal-custom modal-limpeza" *ngIf="mostrarModalLimpeza" role="dialog" aria-modal="true"
+      aria-labelledby="limpezaTitulo">
+      <div class="modal-content-custom">
+
+        <ng-container *ngIf="alertaLimpezaVazia">
+          <h3 id="limpezaTitulo">⚠️ Atenção</h3>
+          <p>Não encontramos nenhuma tarefa concluída para apagar!</p>
+          <p class="text-muted small">Conclua algumas tarefas e tente novamente.</p>
+
+          <button class="btn btn-secondary mt-3" (click)="fecharModalLimpeza()">
+            Entendi
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="!alertaLimpezaVazia && limpezaContador === 0">
+          <h3 id="limpezaTitulo">Confirmação de Limpeza</h3>
+          <p>Tem certeza que deseja apagar <strong>TODAS</strong> as tarefas concluídas?</p>
+          <p class="text-danger">Esta ação é irreversível e os dados serão removidos permanentemente.</p>
+
+          <button class="btn btn-danger me-2" (click)="executarLimpeza()">
+            Sim, Apagar Agora
+          </button>
+          <button class="btn btn-secondary" (click)="fecharModalLimpeza()">
+            Cancelar
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="limpezaContador > 0">
+          <h3 id="limpezaTitulo">✅ Limpeza Concluída!</h3>
+          <p>{{ limpezaContador }} tarefa(s) concluída(s) foram apagadas com sucesso.</p>
+
+          <h5 class="mt-3">Tarefas Removidas:</h5>
+          <div class="lista-excluidas">
+            <ul class="list-unstyled" aria-label="Lista de tarefas excluídas">
+              <li *ngFor="let tarefa of tarefasExcluidas">
+                <small>🗑️ {{ tarefa.nome }}</small>
+              </li>
+            </ul>
+          </div>
+
+          <button class="btn btn-primary mt-3" (click)="fecharModalLimpeza()">
+            Fechar
+          </button>
+        </ng-container>
+
+      </div>
+    </div>
+
+    <div class="modal-backdrop-excluir" *ngIf="mostrarModalExcluirConta" aria-hidden="true"></div>
+    <div class="modal-custom modal-danger" *ngIf="mostrarModalExcluirConta" role="dialog" aria-modal="true"
+      aria-labelledby="exclusaoTitulo">
+      <div class="modal-content-custom">
+
+        <ng-container *ngIf="!contaExcluidaSucesso">
+          <h3 id="exclusaoTitulo" class="text-danger">Excluir Conta</h3>
+          <p>Esta ação é <b>permanente</b>. Todos os seus dados e tarefas serão apagados para sempre.</p>
+
+          <div class="mb-3 text-start">
+            <label for="senhaExcluirInput" class="form-label">Confirme sua senha para prosseguir:</label>
+            <input id="senhaExcluirInput" type="password" class="form-control" [(ngModel)]="senhaParaExcluir"
+              autocomplete="current-password">
+            <small class="text-danger" *ngIf="erroExcluirConta" role="alert">{{ erroExcluirConta }}</small>
+          </div>
+
+          <div class="d-flex justify-content-center">
+            <button class="btn btn-danger me-2" (click)="confirmarExclusaoConta()" [disabled]="deletandoConta">
+              {{ deletandoConta ? 'Excluindo...' : 'Excluir Conta' }}
+            </button>
+            <button class="btn btn-secondary" (click)="mostrarModalExcluirConta = false">
+              Cancelar
+            </button>
+          </div>
+        </ng-container>
+
+        <ng-container *ngIf="contaExcluidaSucesso">
+          <h3 id="exclusaoTitulo" class="text-success">Conta Excluída</h3>
+          <p>Sua conta e todos os seus dados foram removidos com sucesso do nosso sistema.</p>
+          <p>Esperamos ver você de volta em breve!</p>
+
+          <button class="btn btn-primary mt-2" (click)="irParaLogin()">
+            Voltar para o Login
+          </button>
+        </ng-container>
+
+      </div>
+    </div>
 
     <section *ngIf="aba==='ajuda'" class="centro" aria-label="Seção de Ajuda e FAQ">
       <div class="card-tarefas w-100 p-0" style="max-width: 900px;">
@@ -667,11 +675,12 @@
             </td>
 
             <td data-label="Categoria">
-              <span *ngIf="tarefa.categoria" class="badge" [style.backgroundColor]="obterCorCategoria(tarefa.categoria)"
-                [style.color]="obtendoCorTextoConstraste(obterCorCategoria(tarefa.categoria))">
-                {{tarefa.categoria}}
+              <span *ngIf="tarefa.categoria && tarefa.categoria.nome" class="badge"
+                [style.backgroundColor]="obterCorCategoria(tarefa.categoria.nome)"
+                [style.color]="obtendoCorTextoConstraste(obterCorCategoria(tarefa.categoria.nome))">
+                {{tarefa.categoria.nome}}
               </span>
-              <span *ngIf="!tarefa.categoria" class="text-muted small">-</span>
+              <span *ngIf="!tarefa.categoria || !tarefa.categoria.nome" class="text-muted small">Sem categoria</span>
             </td>
 
             <td data-label="Data">{{tarefa.data | date:'dd/MM/yyyy' : '+0000'}}</td>
